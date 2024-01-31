@@ -1,10 +1,10 @@
 const std = @import("std");
 const testing = std.testing;
 
-export fn add(a: i32, b: i32) i32 {
-    return a + b;
+pub fn holamath() []const u8 {
+    return "Hola, math!";
 }
 
-test "basic add functionality" {
-    try testing.expect(add(3, 7) == 10);
+test "holamath" {
+    try testing.expect(std.mem.eql(u8, holamath(), "Hola, math!"));
 }
