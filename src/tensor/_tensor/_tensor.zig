@@ -100,6 +100,11 @@ pub fn _Tensor(comptime Type: type) type {
             }
             return _Tensor(Type).init(shape, tdata, require_grad);
         }
+
+        pub fn new_empty(self: Self, shape: []const usize, require_grad: bool) !_Tensor(Type) {
+            _ = self;
+            return _Tensor(Type).init(shape, null, require_grad);
+        }
     };
 }
 
@@ -143,5 +148,12 @@ test "new_full" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.new_full(&[_]usize{3}, 3, false);
+    try new_tensor.print();
+}
+
+test "new_empty" {
+    const f32Tensor = _Tensor(f32);
+    var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
+    var new_tensor = try tensor.new_empty(&[_]usize{3}, false);
     try new_tensor.print();
 }
