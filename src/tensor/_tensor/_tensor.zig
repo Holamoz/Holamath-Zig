@@ -76,6 +76,7 @@ pub fn _Tensor(comptime Type: type) type {
             return self.dim;
         }
 
+        // TODO: Should be visualized in the terminal
         pub fn print(self: Self) !void {
             for (self.T) |t| {
                 std.debug.print("{d} ", .{t});
@@ -105,6 +106,10 @@ pub fn _Tensor(comptime Type: type) type {
 
         pub fn new_empty(self: Self, shape: []const usize) !_Tensor(Type) {
             return _Tensor(Type).init(shape, null, self.requires_grad);
+        }
+
+        pub fn new_ones(self: Self, shape: []const usize) !_Tensor(Type) {
+            return self.new_full(shape, 1);
         }
     };
 }
@@ -141,20 +146,27 @@ test "get dimemsion" {
 test "new_tensor" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    var new_tensor = try tensor.new_tensor(&[_]usize{3}, &[_]f32{ 1, 2, 3 }, false);
+    var new_tensor = try tensor.new_tensor(&[_]usize{3}, &[_]f32{ 1, 2, 3 });
     try new_tensor.print();
 }
 
 test "new_full" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    var new_tensor = try tensor.new_full(&[_]usize{3}, 3, false);
+    var new_tensor = try tensor.new_full(&[_]usize{3}, 3);
     try new_tensor.print();
 }
 
 test "new_empty" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    var new_tensor = try tensor.new_empty(&[_]usize{3}, false);
+    var new_tensor = try tensor.new_empty(&[_]usize{3});
+    try new_tensor.print();
+}
+
+test "new_ones" {
+    const f32Tensor = _Tensor(f32);
+    var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
+    var new_tensor = try tensor.new_ones(&[_]usize{3});
     try new_tensor.print();
 }
