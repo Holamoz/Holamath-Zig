@@ -1,15 +1,15 @@
 const std = @import("std");
+const math = @import("math");
 
 const TensorError = error{ WrongNumberOfIndices, IndexOutOfBounds };
 
 pub fn _Tensor(comptime Type: type) type {
     return struct {
-        dim: usize,
-        shape: []usize,
-        strides: []usize,
-        requires_grad: bool,
+        _shape: []usize,
+        _strides: []usize,
+        _requires_grad: bool,
 
-        T: []Type,
+        _T: []Type,
         grad: []Type,
 
         const Self = @This();
@@ -37,48 +37,47 @@ pub fn _Tensor(comptime Type: type) type {
             }
 
             return Self{
-                .T = tensorData,
-                .shape = tShape,
-                .dim = shape.len,
-                .strides = strides,
+                ._T = tensorData,
+                ._shape = tShape,
+                ._strides = strides,
                 .grad = try std.heap.page_allocator.alloc(Type, size), // need to implment the backward etc.
-                .requires_grad = requires_grad,
+                ._requires_grad = requires_grad,
             };
         }
 
         fn set(self: Self, indices: []const usize, value: Type) !void {
             const index = try self.calculateIndex(indices);
-            self.T[index] = value;
+            self._T[index] = value;
         }
 
         fn get(self: Self, indices: []const usize) !Type {
             const index = try self.calculateIndex(indices);
-            return self.T[index];
+            return self._T[index];
         }
 
         fn calculateIndex(self: Self, indices: []const usize) !usize {
-            if (indices.len != self.shape.len) {
+            if (indices.len != self._shape.len) {
                 return TensorError.WrongNumberOfIndices;
             }
             var index: usize = 0;
             var stride: usize = 1;
             for (indices, 0..) |idx, i| {
-                if (idx >= self.shape[i]) {
+                if (idx >= self._shape[i]) {
                     return TensorError.IndexOutOfBounds;
                 }
                 index += idx * stride;
-                stride *= self.shape[i];
+                stride *= self._shape[i];
             }
             return index;
         }
 
-        pub fn getDim(self: Self) usize {
-            return self.dim;
+        pub fn dim(self: Self) usize {
+            return self._shape.len;
         }
 
         // TODO: Should be visualized in the terminal
         pub fn print(self: Self) !void {
-            for (self.T) |t| {
+            for (self._T) |t| {
                 std.debug.print("{d} ", .{t});
             }
             std.debug.print("\n", .{});
@@ -89,7 +88,7 @@ pub fn _Tensor(comptime Type: type) type {
             shape: []const usize,
             data: []const Type,
         ) !_Tensor(Type) {
-            return _Tensor(Type).init(shape, data, self.requires_grad);
+            return _Tensor(Type).init(shape, data, self._requires_grad);
         }
 
         pub fn new_full(self: Self, shape: []const usize, data: Type) !_Tensor(Type) {
@@ -101,11 +100,11 @@ pub fn _Tensor(comptime Type: type) type {
             for (0..tdata.len) |i| {
                 tdata[i] = data;
             }
-            return _Tensor(Type).init(shape, tdata, self.requires_grad);
+            return _Tensor(Type).init(shape, tdata, self._requires_grad);
         }
 
         pub fn new_empty(self: Self, shape: []const usize) !_Tensor(Type) {
-            return _Tensor(Type).init(shape, null, self.requires_grad);
+            return _Tensor(Type).init(shape, null, self._requires_grad);
         }
 
         pub fn new_ones(self: Self, shape: []const usize) !_Tensor(Type) {
@@ -144,7 +143,7 @@ test "set and get" {
 test "get dimemsion" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    try std.testing.expect(tensor.getDim() == 3);
+    try std.testing.expect(tensor.dim() == 3);
 }
 
 test "new_tensor" {
