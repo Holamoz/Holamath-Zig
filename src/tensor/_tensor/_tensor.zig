@@ -83,13 +83,15 @@ pub fn _Tensor(comptime Type: type) type {
             std.debug.print("\n", .{});
         }
 
-        pub fn new_tensor(self: Self, shape: []const usize, data: []const Type, require_grad: bool) !_Tensor(Type) {
-            _ = self;
-            return _Tensor(Type).init(shape, data, require_grad);
+        pub fn new_tensor(
+            self: Self,
+            shape: []const usize,
+            data: []const Type,
+        ) !_Tensor(Type) {
+            return _Tensor(Type).init(shape, data, self.requires_grad);
         }
 
-        pub fn new_full(self: Self, shape: []const usize, data: Type, require_grad: bool) !_Tensor(Type) {
-            _ = self;
+        pub fn new_full(self: Self, shape: []const usize, data: Type) !_Tensor(Type) {
             var size: usize = 1;
             for (shape) |dim_size| {
                 size *= dim_size;
@@ -98,12 +100,11 @@ pub fn _Tensor(comptime Type: type) type {
             for (0..tdata.len) |i| {
                 tdata[i] = data;
             }
-            return _Tensor(Type).init(shape, tdata, require_grad);
+            return _Tensor(Type).init(shape, tdata, self.requires_grad);
         }
 
-        pub fn new_empty(self: Self, shape: []const usize, require_grad: bool) !_Tensor(Type) {
-            _ = self;
-            return _Tensor(Type).init(shape, null, require_grad);
+        pub fn new_empty(self: Self, shape: []const usize) !_Tensor(Type) {
+            return _Tensor(Type).init(shape, null, self.requires_grad);
         }
     };
 }
