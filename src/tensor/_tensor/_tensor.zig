@@ -111,6 +111,10 @@ pub fn _Tensor(comptime Type: type) type {
         pub fn new_ones(self: Self, shape: []const usize) !_Tensor(Type) {
             return self.new_full(shape, 1);
         }
+
+        pub fn new_zeros(self: Self, shape: []const usize) !_Tensor(Type) {
+            return self.new_full(shape, 0);
+        }
     };
 }
 
