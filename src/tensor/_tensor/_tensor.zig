@@ -122,6 +122,7 @@ test "init" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     _ = tensor;
+    std.debug.print("Initialize the tensor\n", .{});
 }
 
 test "set and get" {
@@ -131,6 +132,7 @@ test "set and get" {
     try tensor.set(&[_]usize{ 1, 2, 0 }, 3.14);
     const result = try tensor.get(&[_]usize{ 1, 2, 0 });
     try std.testing.expect(3.14 == result);
+    std.debug.print("Set and get\n", .{});
 }
 
 // test "index out of bounds" {
@@ -144,6 +146,7 @@ test "get dimemsion" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     try std.testing.expect(tensor.dim() == 3);
+    std.debug.print("Expected 3, got {}\n", .{tensor.dim()});
 }
 
 test "new_tensor" {
@@ -171,5 +174,12 @@ test "new_ones" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.new_ones(&[_]usize{3});
+    try new_tensor.print();
+}
+
+test "new_zeros" {
+    const f32Tensor = _Tensor(f32);
+    var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
+    var new_tensor = try tensor.new_zeros(&[_]usize{3});
     try new_tensor.print();
 }
