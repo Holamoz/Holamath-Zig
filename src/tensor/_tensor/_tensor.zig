@@ -76,11 +76,8 @@ pub fn _Tensor(comptime Type: type) type {
             return self.dim;
         }
 
-        pub fn new_tensor(self: Self, tdim: usize, shape: usize, data: []type, require_grad: bool) _Tensor(type) {
-            _ = tdim;
-            _ = data;
-            const tensor = _Tensor(self).init(shape, require_grad);
-            _ = tensor;
+        pub fn new_tensor(self: Self, shape: usize, data: []type, require_grad: bool) _Tensor(type) {
+            return _Tensor(self).init(shape, require_grad, data);
         }
     };
 }
