@@ -8,10 +8,13 @@ const TensorError = error{
 };
 
 pub fn _Tensor(comptime Type: type) type {
+    const isComplex = if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) true else false;
+
     return struct {
         _shape: []usize,
         _strides: []usize,
         _requires_grad: bool,
+        _isComplex: bool = isComplex,
 
         _T: []Type,
         grad: []Type,
@@ -79,6 +82,10 @@ pub fn _Tensor(comptime Type: type) type {
             return self._shape.len;
         }
 
+        pub fn is_complex(self: Self) bool {
+            return self._isComplex;
+        }
+
         // TODO: Should be visualized in the terminal
         pub fn print(self: Self) !void {
             for (self._T) |t| {
@@ -142,6 +149,20 @@ test "set and get" {
     try tensor.set(&[_]usize{ 1, 2, 0 }, 3.14);
     const result = try tensor.get(&[_]usize{ 1, 2, 0 });
     try std.testing.expect(3.14 == result);
+}
+
+test "Complex" {
+    std.debug.print("Complex\n", .{});
+    const f32Tensor = _Tensor(math.Complex(f32));
+    var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
+    try std.testing.expect(tensor.is_complex());
+}
+
+test "is not Complex" {
+    std.debug.print("is not Complex\n", .{});
+    const f32Tensor = _Tensor(f32);
+    var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
+    try std.testing.expect(!tensor.is_complex());
 }
 
 test "index out of bounds" {
