@@ -5,7 +5,6 @@ const checkType = @import("./types.zig").checkType;
 const TensorError = error{
     WrongNumberOfIndices,
     IndexOutOfBounds,
-    typeNotSupport,
 };
 
 pub fn _Tensor(comptime Type: type) type {
@@ -20,7 +19,6 @@ pub fn _Tensor(comptime Type: type) type {
         const Self = @This();
 
         pub fn init(shape: []const usize, data: ?[]const Type, requires_grad: bool) !Self {
-            if (!checkType(Type)) return TensorError.typeNotSupport;
             var size: usize = 1;
             for (shape) |dim_size| {
                 size *= dim_size;
@@ -136,12 +134,6 @@ test "init" {
     _ = tensor;
 }
 
-test "init with wrong type" {
-    std.debug.print("Initialize the tensor with wrong type\n", .{});
-    const i32Tensor = _Tensor(usize);
-    try std.testing.expectError(TensorError.typeNotSupport, i32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false));
-}
-
 test "set and get" {
     std.debug.print("Set and get\n", .{});
     const f32Tensor = _Tensor(f32);
@@ -208,25 +200,3 @@ test "element_size" {
     try std.testing.expect(tensor.element_size() == @sizeOf(f32));
     std.debug.print("Expected 4, got {}\n", .{tensor.element_size()});
 }
-
-// test "flaot abs_" {
-//     const f32Tensor = _Tensor(f32);
-//     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{3}, &[_]f32{ 1, -2.5, 3 }, false);
-//     try tensor.abs_();
-//     try tensor.print();
-// }
-
-// test "int abs_" {
-//     const i32Tensor = _Tensor(i32);
-//     var tensor: i32Tensor = try i32Tensor.init(&[_]usize{3}, &[_]i32{ 1, -2, 3 }, false);
-//     try tensor.abs_();
-//     try tensor.print();
-// }
-
-// test "complex abs_" {
-//     const c64Tensor = _Tensor(std.math.Complex(f64));
-//     const c64 = std.math.Complex(f64);
-//     var tensor: c64Tensor = try c64Tensor.init(&[_]usize{3}, &[_]std.math.Complex(f64){ c64.init(1, 2), c64.init(2, 2), c64.init(1, 0) }, false);
-//     try tensor.abs_();
-//     try tensor.print();
-// }
