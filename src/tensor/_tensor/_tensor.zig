@@ -114,6 +114,11 @@ pub fn _Tensor(comptime Type: type) type {
         pub fn new_zeros(self: Self, shape: []const usize) !_Tensor(Type) {
             return self.new_full(shape, 0);
         }
+
+        pub fn element_size(self: Self) usize {
+            _ = self;
+            return @sizeOf(Type);
+        }
     };
 }
 
@@ -182,4 +187,11 @@ test "new_zeros" {
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.new_zeros(&[_]usize{3});
     try new_tensor.print();
+}
+
+test "element_size" {
+    const f32Tensor = _Tensor(f32);
+    var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
+    try std.testing.expect(tensor.element_size() == @sizeOf(f32));
+    std.debug.print("Expected 4, got {}\n", .{tensor.element_size()});
 }
