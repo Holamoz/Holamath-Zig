@@ -52,3 +52,20 @@ test "Tensor.zerosLike()" {
     try std.testing.expect(t.elementSize() == @sizeOf(u8));
     try std.testing.expect(t._shape[0] == 2 and t._shape[1] == 3);
 }
+
+test "Tensor.empty()" {
+    const t = try Tensor.empty(u8, &[_]usize{ 2, 3 }, false);
+    std.debug.print("empty\n", .{});
+    try std.testing.expect(t.isComplex() == false);
+    try std.testing.expect(t.elementSize() == @sizeOf(u8));
+    try std.testing.expect(t._shape[0] == 2 and t._shape[1] == 3);
+}
+
+test "Tensor.emptyLike()" {
+    const testTensor = try Tensor.tensor(u8, &[_]usize{ 2, 3 }, null, false);
+    const t = try Tensor.emptyLike(u8, testTensor);
+    std.debug.print("emptyLikes\n", .{});
+    try std.testing.expect(t.isComplex() == false);
+    try std.testing.expect(t.elementSize() == @sizeOf(u8));
+    try std.testing.expect(t._shape[0] == 2 and t._shape[1] == 3);
+}
