@@ -141,6 +141,10 @@ pub fn _Tensor(comptime Type: type) type {
         pub fn clone(self: Self) !_Tensor(Type) {
             return _Tensor(Type).init(self._shape, self._T, self._requires_grad);
         }
+
+        pub fn copy_(self: Self, src: Self) !void {
+            std.mem.copy(Type, self._T, src._T);
+        }
     };
 }
 
@@ -254,4 +258,15 @@ test "_Tensor.clone()" {
     cloned.print();
     try std.testing.expect((cloned.dim() == tensor.dim()));
     try std.testing.expectEqual(cloned._T[0], tensor._T[0]);
+}
+
+test "_Tensor.copy_()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    var t = try i8Tensor.init(&[_]usize{ 1, 3 }, &[_]i8{ 1, 2, 3 }, false);
+    try t.copy_(tensor);
+    std.debug.print("copy_: ", .{});
+    t.print();
+    try std.testing.expect((t.dim() != tensor.dim()));
+    try std.testing.expectEqual(t._T[0], tensor._T[0]);
 }
