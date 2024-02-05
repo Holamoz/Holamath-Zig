@@ -104,3 +104,11 @@ test "Tensor.clone()" {
     try std.testing.expect(t.isComplex() == false);
     try std.testing.expect(t._T[0] == -5);
 }
+
+test "Tensor.equal()" {
+    var tensor = try Tensor.tensor(i8, &[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    var t = try Tensor.tensor(i8, &[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    var e = Tensor.equal(i8, tensor, t);
+    std.debug.print("equal: {}\n", .{e});
+    try std.testing.expect(e == true);
+}

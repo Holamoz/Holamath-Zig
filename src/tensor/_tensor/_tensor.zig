@@ -147,6 +147,21 @@ pub fn _Tensor(comptime Type: type) type {
             std.mem.copy(Type, self._T[0..len], src._T[0..len]);
             return self;
         }
+
+        pub fn equal(self: Self, other: Self) bool {
+            if (self._shape.len != other._shape.len) {
+                return false;
+            } else if (self._T.len != other._T.len) {
+                return false;
+            } else {
+                for (self._T, other._T) |t1, t2| {
+                    if (t1 != t2) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
     };
 }
 
@@ -271,4 +286,22 @@ test "_Tensor.copy_()" {
     t.print();
     try std.testing.expect((t.dim() != tensor.dim()));
     try std.testing.expectEqual(t._T[0], tensor._T[0]);
+}
+
+test "_Tensor.equal() - not equal" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{2}, &[_]i8{ -5, 8 }, false);
+    var t = try i8Tensor.init(&[_]usize{ 1, 3 }, &[_]i8{ 1, 2, 3 }, false);
+    var e = t.equal(tensor);
+    std.debug.print("equal: {}\n", .{e});
+    try std.testing.expect(e == false);
+}
+
+test "_Tensor.equal() - equal" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{2}, &[_]i8{ -5, 8 }, false);
+    var t = try i8Tensor.init(&[_]usize{2}, &[_]i8{ -5, 8 }, false);
+    var e = t.equal(tensor);
+    std.debug.print("equal: {}\n", .{e});
+    try std.testing.expect(e == true);
 }

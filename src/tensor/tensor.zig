@@ -50,3 +50,7 @@ pub fn clamp(comptime Type: type, T: _Tensor(Type), min: Type, max: Type) !_Tens
 pub fn clone(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
     return T.clone();
 }
+
+pub fn equal(comptime Type: type, Input: _Tensor(Type), Other: _Tensor(Type)) bool {
+    return Input.equal(Other);
+}
