@@ -126,16 +126,16 @@ pub fn _Tensor(comptime Type: type) type {
             return @sizeOf(Type);
         }
 
-        pub fn clamp_(self: Self, min: Type, max: Type) !void {
+        pub fn clamp_(self: Self, min: Type, max: Type) !_Tensor(Type) {
             for (self._T) |*t| {
                 t.* = @min(@max(t.*, min), max);
             }
+            return self;
         }
 
         pub fn clamp(self: Self, min: Type, max: Type) !_Tensor(Type) {
             var t = try self.newTensor(self._shape, self._T);
-            try t.clamp_(min, max);
-            return t;
+            return try t.clamp_(min, max);
         }
 
         pub fn clone(self: Self) !_Tensor(Type) {
@@ -242,7 +242,7 @@ test "_Tensor.element_size()" {
 test "_Tensor.clamp_()" {
     const i8Tensor = _Tensor(i8);
     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
-    try tensor.clamp_(-3, 3);
+    _ = try tensor.clamp_(-3, 3);
     tensor.print();
 }
 
