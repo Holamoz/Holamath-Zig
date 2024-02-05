@@ -1,17 +1,17 @@
 const std = @import("std");
 const math = @import("std").math;
-const checkType = @import("./types.zig").checkType;
 
-const TensorError = error{
+pub const TensorError = error{
     WrongNumberOfIndices,
     IndexOutOfBounds,
+    TypeNotSupported,
 };
 
 pub fn _Tensor(comptime Type: type) type {
     const isComplex = if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) true else false;
 
     return struct {
-        _shape: []usize,
+        _shape: []const usize,
         _strides: []usize,
         _requires_grad: bool,
         _isComplex: bool = isComplex,
@@ -27,11 +27,6 @@ pub fn _Tensor(comptime Type: type) type {
                 size *= dim_size;
             }
 
-            const tShape = try std.heap.page_allocator.alloc(usize, shape.len);
-            for (shape, 0..) |d, i| {
-                tShape[i] = d;
-            }
-
             const tensorData = try std.heap.page_allocator.alloc(Type, size);
             if (data) |d| {
                 std.mem.copy(Type, tensorData, d);
@@ -45,7 +40,7 @@ pub fn _Tensor(comptime Type: type) type {
 
             return Self{
                 ._T = tensorData,
-                ._shape = tShape,
+                ._shape = shape,
                 ._strides = strides,
                 .grad = try std.heap.page_allocator.alloc(Type, size), // need to implment the backward etc.
                 ._requires_grad = requires_grad,
