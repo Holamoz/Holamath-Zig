@@ -26,3 +26,11 @@ test "Tensor.ones()" {
     try std.testing.expect(t.element_size() == @sizeOf(f32));
     try std.testing.expect(t._shape[0] == 2 and t._shape[1] == 3);
 }
+
+test "Tensor.zeros()" {
+    const t = try Tensor.zeros(f32, &[_]usize{ 2, 3 }, false);
+    std.debug.print("zeros\n", .{});
+    try std.testing.expect(t.is_complex() == false);
+    try std.testing.expect(t.element_size() == @sizeOf(f32));
+    try std.testing.expect(t._shape[0] == 2 and t._shape[1] == 3);
+}
