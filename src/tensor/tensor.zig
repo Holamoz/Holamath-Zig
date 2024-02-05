@@ -9,18 +9,18 @@ pub fn tensor(comptime Type: type, comptime shape: []const usize, comptime data:
 
 pub fn ones(comptime Type: type, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
     const t = try tensor(Type, shape, null, requires_grad);
-    return t.new_ones(shape);
+    return t.newOnes(shape);
 }
 
 pub fn zeros(comptime Type: type, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
     const t = try tensor(Type, shape, null, requires_grad);
-    return t.new_zeros(shape);
+    return t.newZeros(shape);
 }
 
 pub fn onesLike(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
-    return T.new_ones(T._shape);
+    return T.newOnes(T._shape);
 }
 
 pub fn zerosLike(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
-    return T.new_zeros(T._shape);
+    return T.newZeros(T._shape);
 }

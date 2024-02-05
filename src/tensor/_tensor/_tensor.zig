@@ -8,13 +8,13 @@ pub const TensorError = error{
 };
 
 pub fn _Tensor(comptime Type: type) type {
-    const isComplex = if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) true else false;
+    const typeIsComplex = if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) true else false;
 
     return struct {
         _shape: []const usize,
         _strides: []usize,
         _requires_grad: bool,
-        _isComplex: bool = isComplex,
+        _isComplex: bool = typeIsComplex,
 
         _T: []Type,
         grad: []Type,
@@ -77,7 +77,7 @@ pub fn _Tensor(comptime Type: type) type {
             return self._shape.len;
         }
 
-        pub fn is_complex(self: Self) bool {
+        pub fn isComplex(self: Self) bool {
             return self._isComplex;
         }
 
@@ -89,7 +89,7 @@ pub fn _Tensor(comptime Type: type) type {
             std.debug.print("\n", .{});
         }
 
-        pub fn new_tensor(
+        pub fn newTensor(
             self: Self,
             shape: []const usize,
             data: []const Type,
@@ -97,7 +97,7 @@ pub fn _Tensor(comptime Type: type) type {
             return _Tensor(Type).init(shape, data, self._requires_grad);
         }
 
-        pub fn new_full(self: Self, shape: []const usize, data: Type) !_Tensor(Type) {
+        pub fn newFull(self: Self, shape: []const usize, data: Type) !_Tensor(Type) {
             var size: usize = 1;
             for (shape) |dim_size| {
                 size *= dim_size;
@@ -109,19 +109,19 @@ pub fn _Tensor(comptime Type: type) type {
             return _Tensor(Type).init(shape, tdata, self._requires_grad);
         }
 
-        pub fn new_empty(self: Self, shape: []const usize) !_Tensor(Type) {
+        pub fn newEmpty(self: Self, shape: []const usize) !_Tensor(Type) {
             return _Tensor(Type).init(shape, null, self._requires_grad);
         }
 
-        pub fn new_ones(self: Self, shape: []const usize) !_Tensor(Type) {
-            return self.new_full(shape, 1);
+        pub fn newOnes(self: Self, shape: []const usize) !_Tensor(Type) {
+            return self.newFull(shape, 1);
         }
 
-        pub fn new_zeros(self: Self, shape: []const usize) !_Tensor(Type) {
-            return self.new_full(shape, 0);
+        pub fn newZeros(self: Self, shape: []const usize) !_Tensor(Type) {
+            return self.newFull(shape, 0);
         }
 
-        pub fn element_size(self: Self) usize {
+        pub fn elementSize(self: Self) usize {
             _ = self;
             return @sizeOf(Type);
         }
@@ -150,14 +150,14 @@ test "_Tensor Complex" {
     std.debug.print("Complex\n", .{});
     const f32Tensor = _Tensor(math.Complex(f32));
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    try std.testing.expect(tensor.is_complex());
+    try std.testing.expect(tensor.isComplex());
 }
 
 test "_Tensor is not Complex" {
     std.debug.print("is not Complex\n", .{});
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    try std.testing.expect(!tensor.is_complex());
+    try std.testing.expect(!tensor.isComplex());
 }
 
 test "_Tensor expected wrong: index out of bounds" {
@@ -178,41 +178,41 @@ test "_Tensor.dim()" {
 test "_Tensor.new_tensor()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    var new_tensor = try tensor.new_tensor(&[_]usize{3}, &[_]f32{ 1, 2, 3 });
+    var new_tensor = try tensor.newTensor(&[_]usize{3}, &[_]f32{ 1, 2, 3 });
     try new_tensor.print();
 }
 
 test "_Tensor.new_full()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    var new_tensor = try tensor.new_full(&[_]usize{3}, 3);
+    var new_tensor = try tensor.newFull(&[_]usize{3}, 3);
     try new_tensor.print();
 }
 
 test "_Tensor.new_empty()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    var new_tensor = try tensor.new_empty(&[_]usize{3});
+    var new_tensor = try tensor.newEmpty(&[_]usize{3});
     try new_tensor.print();
 }
 
 test "_Tensor.new_ones()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    var new_tensor = try tensor.new_ones(&[_]usize{3});
+    var new_tensor = try tensor.newOnes(&[_]usize{3});
     try new_tensor.print();
 }
 
 test "_Tensor.new_zeros()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    var new_tensor = try tensor.new_zeros(&[_]usize{3});
+    var new_tensor = try tensor.newZeros(&[_]usize{3});
     try new_tensor.print();
 }
 
 test "_Tensor.element_size()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-    try std.testing.expect(tensor.element_size() == @sizeOf(f32));
-    std.debug.print("Expected 4, got {}\n", .{tensor.element_size()});
+    try std.testing.expect(tensor.elementSize() == @sizeOf(f32));
+    std.debug.print("Expected 4, got {}\n", .{tensor.elementSize()});
 }
