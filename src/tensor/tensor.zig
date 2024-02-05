@@ -22,6 +22,11 @@ pub fn empty(comptime Type: type, comptime shape: []const usize, comptime requir
     return t.newEmpty(shape);
 }
 
+pub fn full(comptime Type: type, comptime shape: []const usize, comptime data: Type, comptime requires_grad: bool) !_Tensor(Type) {
+    const t = try tensor(Type, shape, null, requires_grad);
+    return t.newFull(shape, data);
+}
+
 pub fn onesLike(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
     return T.newOnes(T._shape);
 }
@@ -32,4 +37,8 @@ pub fn zerosLike(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
 
 pub fn emptyLike(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
     return T.newEmpty(T._shape);
+}
+
+pub fn fullLike(comptime Type: type, T: _Tensor(Type), data: Type) !_Tensor(Type) {
+    return T.newFull(T._shape, data);
 }
