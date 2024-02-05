@@ -134,7 +134,8 @@ pub fn _Tensor(comptime Type: type) type {
 
         pub fn clamp(self: Self, min: Type, max: Type) !_Tensor(Type) {
             var t = try self.newTensor(self._shape, self._T);
-            return t.clamp_(min, max);
+            try t.clamp_(min, max);
+            return t;
         }
     };
 }

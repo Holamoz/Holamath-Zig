@@ -42,3 +42,7 @@ pub fn emptyLike(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
 pub fn fullLike(comptime Type: type, T: _Tensor(Type), data: Type) !_Tensor(Type) {
     return T.newFull(T._shape, data);
 }
+
+pub fn clamp(comptime Type: type, T: _Tensor(Type), min: Type, max: Type) !_Tensor(Type) {
+    return T.clamp(min, max);
+}

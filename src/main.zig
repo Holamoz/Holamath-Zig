@@ -86,3 +86,10 @@ test "Tensor.fullLike()" {
     try std.testing.expect(t.elementSize() == @sizeOf(u8));
     try std.testing.expect(t._shape[0] == 2 and t._shape[1] == 3);
 }
+
+test "Tensor.clamp()" {
+    var tensor = try Tensor.tensor(i8, &[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    const t = try Tensor.clamp(i8, tensor, 0, 1);
+    std.debug.print("clamp: ", .{});
+    t.print();
+}
