@@ -82,7 +82,7 @@ pub fn _Tensor(comptime Type: type) type {
         }
 
         // TODO: Should be visualized in the terminal
-        pub fn print(self: Self) !void {
+        pub fn print(self: Self) void {
             for (self._T) |t| {
                 std.debug.print("{d} ", .{t});
             }
@@ -124,6 +124,17 @@ pub fn _Tensor(comptime Type: type) type {
         pub fn elementSize(self: Self) usize {
             _ = self;
             return @sizeOf(Type);
+        }
+
+        pub fn clamp_(self: Self, min: Type, max: Type) !void {
+            for (self._T) |*t| {
+                t.* = @min(@max(t.*, min), max);
+            }
+        }
+
+        pub fn clamp(self: Self, min: Type, max: Type) !_Tensor(Type) {
+            var t = try self.newTensor(self._shape, self._T);
+            return t.clamp_(min, max);
         }
     };
 }
@@ -179,35 +190,35 @@ test "_Tensor.new_tensor()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.newTensor(&[_]usize{3}, &[_]f32{ 1, 2, 3 });
-    try new_tensor.print();
+    new_tensor.print();
 }
 
 test "_Tensor.new_full()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.newFull(&[_]usize{3}, 3);
-    try new_tensor.print();
+    new_tensor.print();
 }
 
 test "_Tensor.new_empty()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.newEmpty(&[_]usize{3});
-    try new_tensor.print();
+    new_tensor.print();
 }
 
 test "_Tensor.new_ones()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.newOnes(&[_]usize{3});
-    try new_tensor.print();
+    new_tensor.print();
 }
 
 test "_Tensor.new_zeros()" {
     const f32Tensor = _Tensor(f32);
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.newZeros(&[_]usize{3});
-    try new_tensor.print();
+    new_tensor.print();
 }
 
 test "_Tensor.element_size()" {
@@ -215,4 +226,18 @@ test "_Tensor.element_size()" {
     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     try std.testing.expect(tensor.elementSize() == @sizeOf(f32));
     std.debug.print("Expected 4, got {}\n", .{tensor.elementSize()});
+}
+
+test "_Tensor.clamp_()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    try tensor.clamp_(-3, 3);
+    tensor.print();
+}
+
+test "_Tensor.clamp()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    const clamped = try tensor.clamp(-3, 3);
+    clamped.print();
 }
