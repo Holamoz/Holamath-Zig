@@ -137,6 +137,10 @@ pub fn _Tensor(comptime Type: type) type {
             try t.clamp_(min, max);
             return t;
         }
+
+        pub fn clone(self: Self) !_Tensor(Type) {
+            return _Tensor(Type).init(self._shape, self._T, self._requires_grad);
+        }
     };
 }
 
@@ -241,4 +245,13 @@ test "_Tensor.clamp()" {
     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
     const clamped = try tensor.clamp(-3, 3);
     clamped.print();
+}
+
+test "_Tensor.clone()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    var cloned = try tensor.clone();
+    cloned.print();
+    try std.testing.expect((cloned.dim() == tensor.dim()));
+    try std.testing.expectEqual(cloned._T[0], tensor._T[0]);
 }

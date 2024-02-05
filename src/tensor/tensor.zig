@@ -46,3 +46,7 @@ pub fn fullLike(comptime Type: type, T: _Tensor(Type), data: Type) !_Tensor(Type
 pub fn clamp(comptime Type: type, T: _Tensor(Type), min: Type, max: Type) !_Tensor(Type) {
     return T.clamp(min, max);
 }
+
+pub fn clone(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
+    return T.clone();
+}

@@ -93,3 +93,12 @@ test "Tensor.clamp()" {
     std.debug.print("clamp: ", .{});
     t.print();
 }
+
+test "Tensor.clone()" {
+    var tensor = try Tensor.tensor(i8, &[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    const t = try Tensor.clone(i8, tensor);
+    std.debug.print("clone: \n", .{});
+    t.print();
+    try std.testing.expect(t.isComplex() == false);
+    try std.testing.expect(t._T[0] == -5);
+}
