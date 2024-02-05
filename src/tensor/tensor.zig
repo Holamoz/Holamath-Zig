@@ -7,7 +7,7 @@ pub fn tensor(comptime Type: type, comptime shape: []const usize, comptime data:
     return _Tensor(Type).init(shape, data, requires_grad);
 }
 
-test "tensor" {
+test "tensor()" {
     const t = try tensor(f32, &[_]usize{ 2, 3 }, null, false);
     std.debug.print("tensor\n", .{});
     try std.testing.expect(t.is_complex() == false);
