@@ -206,8 +206,8 @@ test "_Tensor.new_full()" {
 }
 
 test "_Tensor.new_empty()" {
-    const f32Tensor = _Tensor(f32);
-    var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
+    const u8Tensor = _Tensor(u8);
+    var tensor: u8Tensor = try u8Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
     var new_tensor = try tensor.newEmpty(&[_]usize{3});
     new_tensor.print();
 }
