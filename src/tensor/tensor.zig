@@ -16,3 +16,11 @@ pub fn zeros(comptime Type: type, comptime shape: []const usize, comptime requir
     const t = try tensor(Type, shape, null, requires_grad);
     return t.new_zeros(shape);
 }
+
+pub fn onesLike(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
+    return T.new_ones(T._shape);
+}
+
+pub fn zerosLike(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
+    return T.new_zeros(T._shape);
+}
