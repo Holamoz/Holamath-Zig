@@ -1,5 +1,6 @@
 const std = @import("std");
 const math = @import("std").math;
+const arrayList = std.ArrayList;
 
 pub const TensorError = error{
     WrongNumberOfIndices,
@@ -11,7 +12,7 @@ pub fn _Tensor(comptime Type: type) type {
     const typeIsComplex = if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) true else false;
 
     return struct {
-        _shape: []const usize,
+        _shape: []usize,
         _strides: []usize,
         _requires_grad: bool,
         _isComplex: bool = typeIsComplex,
@@ -38,9 +39,12 @@ pub fn _Tensor(comptime Type: type) type {
                 strides[i] = strides[i - 1] * shape[i - 1];
             }
 
+            const tensorShape = try std.heap.page_allocator.alloc(usize, shape.len);
+            std.mem.copy(usize, tensorShape, shape);
+
             return Self{
                 ._T = tensorData,
-                ._shape = shape,
+                ._shape = tensorShape,
                 ._strides = strides,
                 .grad = try std.heap.page_allocator.alloc(Type, size), // need to implment the backward etc.
                 ._requires_grad = requires_grad,
@@ -169,6 +173,51 @@ pub fn _Tensor(comptime Type: type) type {
 
         pub fn reshape_as(self: Self, other: Self) !_Tensor(Type) {
             return _Tensor(Type).init(other._shape, self._T, self._requires_grad);
+        }
+
+        pub fn resize_(self: *Self, shape: []const usize) !_Tensor(Type) {
+            // Register the allocator
+            var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+            defer arena.deinit();
+            const allocator = arena.allocator();
+
+            // Calculate the new size
+            var newSize: usize = 1;
+            for (shape) |dim_size| {
+                newSize *= dim_size;
+            }
+            // Allocate the new memory and change the pointer for _shape
+            const oldShapeMemory = self._shape.ptr[0..self._shape.len];
+            const new_shape = try allocator.alloc(usize, shape.len);
+            std.mem.copy(usize, new_shape, shape);
+            allocator.free(oldShapeMemory);
+            self._shape.ptr = new_shape.ptr;
+
+            // Allocate the new memory and change the pointer for _strides
+            const oldStridesMemory = self._strides.ptr[0..self._strides.len];
+            const new_strides = try allocator.alloc(usize, shape.len);
+            new_strides[0] = 1;
+            for (1..shape.len) |i| {
+                new_strides[i] = new_strides[i - 1] * shape[i - 1];
+            }
+            allocator.free(oldStridesMemory);
+            self._strides.ptr = new_strides.ptr;
+
+            // Resize the _T if self._T.len > size
+            const oldTMemory = self._T.ptr[0..self._T.len];
+            if (self._T.len > newSize) {
+                if (allocator.resize(oldTMemory, newSize)) {
+                    self._T.len = newSize;
+                } else {
+                    const newMemory = try allocator.alloc(Type, newSize);
+                    @memcpy(newMemory[0..newSize], self._T[0..newSize]);
+                    allocator.free(oldTMemory);
+                    self._T.ptr = newMemory.ptr;
+                    self._T.len = newSize;
+                }
+            }
+
+            return _Tensor(Type).init(shape, self._T, self._requires_grad);
         }
     };
 }
@@ -333,4 +382,16 @@ test "_Tensor.reshape_as()" {
     try std.testing.expectEqual(reshaped._T[0], tensor._T[0]);
     try std.testing.expect(reshaped._shape[0] == 1);
     try std.testing.expect(reshaped._shape[1] == 4);
+}
+
+test "_Tensor.resize_()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    var resized = try tensor.resize_(&[_]usize{ 1, 2 });
+    resized.print();
+    std.debug.print("resize._T: {*}", .{tensor._T.ptr});
+    try std.testing.expectEqual(resized._T[0], tensor._T[0]);
+    try std.testing.expect(resized._shape[0] == 1);
+    try std.testing.expect(resized._shape[1] == 2);
+    try std.testing.expect(resized._T.len == 1 * 2);
 }
