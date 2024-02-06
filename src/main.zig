@@ -112,3 +112,14 @@ test "Tensor.equal()" {
     std.debug.print("equal: {}\n", .{e});
     try std.testing.expect(e == true);
 }
+
+test "Tensor.reshape()" {
+    var tensor = try Tensor.tensor(i8, &[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    const t = try Tensor.reshape(i8, tensor, &[_]usize{ 3, 1 });
+    std.debug.print("reshape: ", .{});
+    t.print();
+    try std.testing.expect(t.isComplex() == false);
+    try std.testing.expect(t._T[0] == -5);
+    try std.testing.expect(t._shape[0] == 3);
+    try std.testing.expect(t._shape[1] == 1);
+}

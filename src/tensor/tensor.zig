@@ -54,3 +54,7 @@ pub fn clone(comptime Type: type, T: _Tensor(Type)) !_Tensor(Type) {
 pub fn equal(comptime Type: type, Input: _Tensor(Type), Other: _Tensor(Type)) bool {
     return Input.equal(Other);
 }
+
+pub fn reshape(comptime Type: type, Input: _Tensor(Type), shape: []const usize) !_Tensor(Type) {
+    return Input.reshape(shape);
+}

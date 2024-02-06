@@ -162,6 +162,14 @@ pub fn _Tensor(comptime Type: type) type {
                 return true;
             }
         }
+
+        pub fn reshape(self: Self, shape: []const usize) !_Tensor(Type) {
+            return _Tensor(Type).init(shape, self._T, self._requires_grad);
+        }
+
+        pub fn reshape_as(self: Self, other: Self) !_Tensor(Type) {
+            return _Tensor(Type).init(other._shape, self._T, self._requires_grad);
+        }
     };
 }
 
@@ -304,4 +312,25 @@ test "_Tensor.equal() - equal" {
     var e = t.equal(tensor);
     std.debug.print("equal: {}\n", .{e});
     try std.testing.expect(e == true);
+}
+
+test "_Tensor.reshape()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    var reshaped = try tensor.reshape(&[_]usize{ 1, 4 });
+    reshaped.print();
+    try std.testing.expectEqual(reshaped._T[0], tensor._T[0]);
+    try std.testing.expect(reshaped._shape[0] == 1);
+    try std.testing.expect(reshaped._shape[1] == 4);
+}
+
+test "_Tensor.reshape_as()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    var target: i8Tensor = try i8Tensor.init(&[_]usize{ 1, 4 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    var reshaped = try tensor.reshape_as(target);
+    reshaped.print();
+    try std.testing.expectEqual(reshaped._T[0], tensor._T[0]);
+    try std.testing.expect(reshaped._shape[0] == 1);
+    try std.testing.expect(reshaped._shape[1] == 4);
 }
