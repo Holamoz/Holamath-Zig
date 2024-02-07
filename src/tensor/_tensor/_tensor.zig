@@ -6,6 +6,7 @@ pub const TensorError = error{
     WrongNumberOfIndices,
     IndexOutOfBounds,
     TypeNotSupported,
+    TensorIncompatibleShape,
 };
 
 pub fn _Tensor(comptime Type: type) type {
@@ -219,6 +220,26 @@ pub fn _Tensor(comptime Type: type) type {
 
             return _Tensor(Type).init(shape, self._T, self._requires_grad);
         }
+
+        pub fn view(self: Self, shape: []const usize) !_Tensor(Type) {
+            var newSize: usize = 1;
+            for (shape) |s| {
+                newSize *= s;
+            }
+            var curSize: usize = 1;
+            for (self._shape) |s| {
+                curSize *= s;
+            }
+
+            if (newSize != curSize) {
+                return TensorError.TensorIncompatibleShape;
+            }
+            return _Tensor(Type).init(shape, self._T, self._requires_grad);
+        }
+
+        pub fn view_as(self: Self, other: _Tensor(Type)) !_Tensor(Type) {
+            return self.view(other._shape);
+        }
     };
 }
 
@@ -394,4 +415,29 @@ test "_Tensor.resize_()" {
     try std.testing.expect(resized._shape[0] == 1);
     try std.testing.expect(resized._shape[1] == 2);
     try std.testing.expect(resized._T.len == 1 * 2);
+}
+
+test "_Tensor.view()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    var viewed = try tensor.view(&[_]usize{ 1, 4 });
+    viewed.print();
+    try std.testing.expect(viewed._shape[0] == 1);
+    try std.testing.expect(viewed._shape[1] == 4);
+}
+
+test "_Tensor.view() - Expect Tensor shape incompatible error" {
+    const i8Tensor = _Tensor(i8);
+    var tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    try std.testing.expectError(TensorError.TensorIncompatibleShape, tensor.view(&[_]usize{ 1, 2 }));
+}
+
+test "_Tensor.view_as()" {
+    const i8Tensor = _Tensor(i8);
+    var t1 = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    var t2 = try i8Tensor.init(&[_]usize{ 1, 4 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    var viewed = try t1.view_as(t2);
+    viewed.print();
+    try std.testing.expect(viewed._shape[0] == 1);
+    try std.testing.expect(viewed._shape[1] == 4);
 }
