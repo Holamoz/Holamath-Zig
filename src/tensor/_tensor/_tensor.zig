@@ -126,6 +126,11 @@ pub fn _Tensor(comptime Type: type) type {
             return self.newFull(shape, 0);
         }
 
+        pub fn zero_(self: Self) _Tensor(Type) {
+            @memset(self._T, 0);
+            return self;
+        }
+
         pub fn elementSize(self: Self) usize {
             _ = self;
             return @sizeOf(Type);
@@ -440,4 +445,15 @@ test "_Tensor.view_as()" {
     viewed.print();
     try std.testing.expect(viewed._shape[0] == 1);
     try std.testing.expect(viewed._shape[1] == 4);
+}
+
+test "_Tensor.zero_()" {
+    const i8Tensor = _Tensor(i8);
+    var t1 = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    var t2 = t1.zero_();
+    std.debug.print("_Tensor.zero_()", .{});
+    try std.testing.expect(t1._T[0] == 0);
+    try std.testing.expect(t1._T[2] == 0);
+    try std.testing.expect(t2._T[1] == 0);
+    try std.testing.expect(t2._T[3] == 0);
 }
