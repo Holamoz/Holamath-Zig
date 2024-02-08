@@ -433,26 +433,31 @@ test "_Tensor.equal() - equal" {
     try std.testing.expect(e == true);
 }
 
-// test "_Tensor.reshape()" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     var reshaped = try tensor.reshape(&[_]usize{ 1, 4 });
-//     reshaped.print();
-//     try std.testing.expectEqual(reshaped._T[0], tensor._T[0]);
-//     try std.testing.expect(reshaped._shape[0] == 1);
-//     try std.testing.expect(reshaped._shape[1] == 4);
-// }
+test "_Tensor.reshape()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer tensor.deinit();
+    var reshaped = try tensor.reshape(&[_]usize{ 1, 4 });
+    defer reshaped.deinit();
+    reshaped.print();
+    try std.testing.expectEqual(reshaped._T[0], tensor._T[0]);
+    try std.testing.expect(reshaped._shape[0] == 1);
+    try std.testing.expect(reshaped._shape[1] == 4);
+}
 
-// test "_Tensor.reshape_as()" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     var target: i8Tensor = try i8Tensor.init(&[_]usize{ 1, 4 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     var reshaped = try tensor.reshape_as(target);
-//     reshaped.print();
-//     try std.testing.expectEqual(reshaped._T[0], tensor._T[0]);
-//     try std.testing.expect(reshaped._shape[0] == 1);
-//     try std.testing.expect(reshaped._shape[1] == 4);
-// }
+test "_Tensor.reshape_as()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer tensor.deinit();
+    var target: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{ 1, 4 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer target.deinit();
+    var reshaped = try tensor.reshape_as(target);
+    defer reshaped.deinit();
+    reshaped.print();
+    try std.testing.expectEqual(reshaped._T[0], tensor._T[0]);
+    try std.testing.expect(reshaped._shape[0] == 1);
+    try std.testing.expect(reshaped._shape[1] == 4);
+}
 
 // test "_Tensor.resize_()" {
 //     const i8Tensor = _Tensor(i8);
