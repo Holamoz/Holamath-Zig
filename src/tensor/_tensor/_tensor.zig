@@ -471,30 +471,36 @@ test "_Tensor.reshape_as()" {
 //     try std.testing.expect(resized._T.len == 1 * 2);
 // }
 
-// test "_Tensor.view()" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     var viewed = try tensor.view(&[_]usize{ 1, 4 });
-//     viewed.print();
-//     try std.testing.expect(viewed._shape[0] == 1);
-//     try std.testing.expect(viewed._shape[1] == 4);
-// }
+test "_Tensor.view()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer tensor.deinit();
+    var viewed = try tensor.view(&[_]usize{ 1, 4 });
+    defer viewed.deinit();
+    viewed.print();
+    try std.testing.expect(viewed._shape[0] == 1);
+    try std.testing.expect(viewed._shape[1] == 4);
+}
 
-// test "_Tensor.view() - Expect Tensor shape incompatible error" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     try std.testing.expectError(TensorError.TensorIncompatibleShape, tensor.view(&[_]usize{ 1, 2 }));
-// }
+test "_Tensor.view() - Expect Tensor shape incompatible error" {
+    const i8Tensor = _Tensor(i8);
+    var tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer tensor.deinit();
+    try std.testing.expectError(TensorError.TensorIncompatibleShape, tensor.view(&[_]usize{ 1, 2 }));
+}
 
-// test "_Tensor.view_as()" {
-//     const i8Tensor = _Tensor(i8);
-//     var t1 = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     var t2 = try i8Tensor.init(&[_]usize{ 1, 4 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     var viewed = try t1.view_as(t2);
-//     viewed.print();
-//     try std.testing.expect(viewed._shape[0] == 1);
-//     try std.testing.expect(viewed._shape[1] == 4);
-// }
+test "_Tensor.view_as()" {
+    const i8Tensor = _Tensor(i8);
+    var t1 = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer t1.deinit();
+    var t2 = try i8Tensor.init(std.testing.allocator, &[_]usize{ 1, 4 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer t2.deinit();
+    var viewed = try t1.view_as(t2);
+    defer viewed.deinit();
+    viewed.print();
+    try std.testing.expect(viewed._shape[0] == 1);
+    try std.testing.expect(viewed._shape[1] == 4);
+}
 
 // test "_Tensor.zero_()" {
 //     const i8Tensor = _Tensor(i8);
