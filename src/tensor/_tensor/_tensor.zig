@@ -502,13 +502,15 @@ test "_Tensor.view_as()" {
     try std.testing.expect(viewed._shape[1] == 4);
 }
 
-// test "_Tensor.zero_()" {
-//     const i8Tensor = _Tensor(i8);
-//     var t1 = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     var t2 = t1.zero_();
-//     std.debug.print("_Tensor.zero_()", .{});
-//     try std.testing.expect(t1._T[0] == 0);
-//     try std.testing.expect(t1._T[2] == 0);
-//     try std.testing.expect(t2._T[1] == 0);
-//     try std.testing.expect(t2._T[3] == 0);
-// }
+test "_Tensor.zero_()" {
+    const i8Tensor = _Tensor(i8);
+    var t1 = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer t1.deinit();
+    var t2 = t1.zero_();
+    t2.print();
+    std.debug.print("_Tensor.zero_()", .{});
+    try std.testing.expect(t1._T[0] == 0);
+    try std.testing.expect(t1._T[2] == 0);
+    try std.testing.expect(t2._T[1] == 0);
+    try std.testing.expect(t2._T[3] == 0);
+}
