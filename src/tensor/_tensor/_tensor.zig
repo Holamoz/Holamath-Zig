@@ -260,6 +260,7 @@ pub fn _Tensor(comptime Type: type) type {
 }
 
 test "Init and Deinit" {
+    std.debug.print("Init and Deinit \n", .{});
     const i8Tensor = _Tensor(i8);
     var t = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 3 }, &[_]i8{ 1, 2, 3, 4, 5, 6 }, false);
     defer t.deinit();
@@ -277,19 +278,20 @@ test "_Tensor.set and _Tensor.get" {
     defer tensor.deinit();
 
     try tensor.set(&[_]usize{ 1, 2 }, 3);
-    const result = try tensor.get(&[_]usize{ 1, 2, 0 });
-    try std.testing.expect(3.14 == result);
+    const result = try tensor.get(&[_]usize{ 1, 2 });
+    try std.testing.expect(3 == result);
 }
 
 test "_Tensor Complex" {
     std.debug.print("Complex\n", .{});
-    const i8Tensor = _Tensor(i8);
-    var t = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 3 }, &[_]i8{ 1, 2, 3, 4, 5, 6 }, false);
+    const c64Tensor = _Tensor(std.math.Complex(f32));
+    var t = try c64Tensor.init(std.testing.allocator, &[_]usize{ 2, 3 }, null, false);
     defer t.deinit();
     try std.testing.expect(t.isComplex());
 }
 
 test "_Tensor is not Complex" {
+    std.debug.print("Not Complex\n", .{});
     const i8Tensor = _Tensor(i8);
     var t = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 3 }, &[_]i8{ 1, 2, 3, 4, 5, 6 }, false);
     defer t.deinit();
@@ -309,45 +311,54 @@ test "_Tensor.dim()" {
     const i8Tensor = _Tensor(i8);
     var t = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 3 }, &[_]i8{ 1, 2, 3, 4, 5, 6 }, false);
     defer t.deinit();
-    try std.testing.expect(t.dim() == 3);
-    std.debug.print("Expected 3, got {}\n", .{t.dim()});
+    try std.testing.expect(t.dim() == 2);
+    std.debug.print("Expected 2, got {}\n", .{t.dim()});
 }
 
-test "_Tensor.new_tensor()" {
+test "_Tensor.newTensor()" {
     const i8Tensor = _Tensor(i8);
     var t = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 3 }, &[_]i8{ 1, 2, 3, 4, 5, 6 }, false);
     defer t.deinit();
     var new_tensor = try t.newTensor(&[_]usize{3}, &[_]i8{ 1, 2, 3 });
+    defer new_tensor.deinit();
     new_tensor.print();
 }
 
-// test "_Tensor.new_full()" {
-//     const f32Tensor = _Tensor(f32);
-//     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-//     var new_tensor = try tensor.newFull(&[_]usize{3}, 3);
-//     new_tensor.print();
-// }
+test "_Tensor.newFull()" {
+    const f32Tensor = _Tensor(f32);
+    var tensor: f32Tensor = try f32Tensor.init(std.testing.allocator, &[_]usize{ 3, 3, 3 }, null, false);
+    defer tensor.deinit();
+    var new_tensor = try tensor.newFull(&[_]usize{3}, 3);
+    defer new_tensor.deinit();
+    new_tensor.print();
+}
 
-// test "_Tensor.new_empty()" {
-//     const u8Tensor = _Tensor(u8);
-//     var tensor: u8Tensor = try u8Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-//     var new_tensor = try tensor.newEmpty(&[_]usize{3});
-//     new_tensor.print();
-// }
+test "_Tensor.newEmpty()" {
+    const u8Tensor = _Tensor(u8);
+    var tensor: u8Tensor = try u8Tensor.init(std.testing.allocator, &[_]usize{ 3, 3, 3 }, null, false);
+    defer tensor.deinit();
+    var new_tensor = try tensor.newEmpty(&[_]usize{3});
+    defer new_tensor.deinit();
+    new_tensor.print();
+}
 
-// test "_Tensor.new_ones()" {
-//     const f32Tensor = _Tensor(f32);
-//     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-//     var new_tensor = try tensor.newOnes(&[_]usize{3});
-//     new_tensor.print();
-// }
+test "_Tensor.newOnes()" {
+    const u8Tensor = _Tensor(u8);
+    var tensor: u8Tensor = try u8Tensor.init(std.testing.allocator, &[_]usize{ 3, 3, 3 }, null, false);
+    defer tensor.deinit();
+    var new_tensor = try tensor.newOnes(&[_]usize{3});
+    defer new_tensor.deinit();
+    new_tensor.print();
+}
 
-// test "_Tensor.new_zeros()" {
-//     const f32Tensor = _Tensor(f32);
-//     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-//     var new_tensor = try tensor.newZeros(&[_]usize{3});
-//     new_tensor.print();
-// }
+test "_Tensor.newZeros()" {
+    const u8Tensor = _Tensor(u8);
+    var tensor: u8Tensor = try u8Tensor.init(std.testing.allocator, &[_]usize{ 3, 3, 3 }, null, false);
+    defer tensor.deinit();
+    var new_tensor = try tensor.newZeros(&[_]usize{3});
+    defer new_tensor.deinit();
+    new_tensor.print();
+}
 
 // test "_Tensor.element_size()" {
 //     const f32Tensor = _Tensor(f32);
