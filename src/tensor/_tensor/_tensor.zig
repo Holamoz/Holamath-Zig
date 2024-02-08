@@ -387,25 +387,29 @@ test "_Tensor.clamp()" {
     try std.testing.expect((clamped._T[0] == -3 and clamped._T[1] == 2 and clamped._T[2] == 3));
 }
 
-// test "_Tensor.clone()" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
-//     var cloned = try tensor.clone();
-//     cloned.print();
-//     try std.testing.expect((cloned.dim() == tensor.dim()));
-//     try std.testing.expectEqual(cloned._T[0], tensor._T[0]);
-// }
+test "_Tensor.clone()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    defer tensor.deinit();
+    var cloned = try tensor.clone();
+    defer cloned.deinit();
+    cloned.print();
+    try std.testing.expect((cloned.dim() == tensor.dim()));
+    try std.testing.expectEqual(cloned._T[0], tensor._T[0]);
+}
 
-// test "_Tensor.copy_()" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{2}, &[_]i8{ -5, 8 }, false);
-//     var t = try i8Tensor.init(&[_]usize{ 1, 3 }, &[_]i8{ 1, 2, 3 }, false);
-//     _ = try t.copy_(tensor);
-//     std.debug.print("copy_: ", .{});
-//     t.print();
-//     try std.testing.expect((t.dim() != tensor.dim()));
-//     try std.testing.expectEqual(t._T[0], tensor._T[0]);
-// }
+test "_Tensor.copy_()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{2}, &[_]i8{ -5, 8 }, false);
+    defer tensor.deinit();
+    var t = try i8Tensor.init(std.testing.allocator, &[_]usize{ 1, 3 }, &[_]i8{ 1, 2, 3 }, false);
+    defer t.deinit();
+    _ = try t.copy_(tensor);
+    std.debug.print("copy_: ", .{});
+    t.print();
+    try std.testing.expect((t.dim() != tensor.dim()));
+    try std.testing.expectEqual(t._T[0], tensor._T[0]);
+}
 
 // test "_Tensor.equal() - not equal" {
 //     const i8Tensor = _Tensor(i8);
