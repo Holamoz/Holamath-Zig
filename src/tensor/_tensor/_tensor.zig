@@ -368,19 +368,24 @@ test "_Tensor.elementSize()" {
     std.debug.print("Expected 4, got {}\n", .{tensor.elementSize()});
 }
 
-// test "_Tensor.clamp_()" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
-//     _ = try tensor.clamp_(-3, 3);
-//     tensor.print();
-// }
+test "_Tensor.clamp_()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    defer tensor.deinit();
+    _ = try tensor.clamp_(-3, 3);
+    tensor.print();
+    try std.testing.expect(tensor._T[0] == -3 and tensor._T[1] == 2 and tensor._T[2] == 3);
+}
 
-// test "_Tensor.clamp()" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
-//     const clamped = try tensor.clamp(-3, 3);
-//     clamped.print();
-// }
+test "_Tensor.clamp()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{3}, &[_]i8{ -5, 2, 8 }, false);
+    defer tensor.deinit();
+    const clamped = try tensor.clamp(-3, 3);
+    clamped.print();
+    defer clamped.deinit();
+    try std.testing.expect((clamped._T[0] == -3 and clamped._T[1] == 2 and clamped._T[2] == 3));
+}
 
 // test "_Tensor.clone()" {
 //     const i8Tensor = _Tensor(i8);
