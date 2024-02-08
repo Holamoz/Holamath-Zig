@@ -3,27 +3,27 @@ const std = @import("std");
 const _Tensor = @import("./_tensor/_tensor.zig")._Tensor;
 const TensorError = @import("./_tensor/_tensor.zig").TensorError;
 
-pub fn tensor(comptime Type: type, comptime shape: []const usize, comptime data: ?[]const Type, comptime requires_grad: bool) !_Tensor(Type) {
-    return _Tensor(Type).init(shape, data, requires_grad);
+pub fn tensor(comptime Type: type, allocator: std.mem.Allocator, comptime shape: []const usize, comptime data: ?[]const Type, comptime requires_grad: bool) !_Tensor(Type) {
+    return _Tensor(Type).init(allocator, shape, data, requires_grad);
 }
 
-pub fn ones(comptime Type: type, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
-    const t = try tensor(Type, shape, null, requires_grad);
+pub fn ones(comptime Type: type, allocator: std.mem.Allocator, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
+    const t = try tensor(Type, allocator, shape, null, requires_grad);
     return t.newOnes(shape);
 }
 
-pub fn zeros(comptime Type: type, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
-    const t = try tensor(Type, shape, null, requires_grad);
+pub fn zeros(comptime Type: type, allocator: std.mem.Allocator, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
+    const t = try tensor(Type, allocator, shape, null, requires_grad);
     return t.newZeros(shape);
 }
 
-pub fn empty(comptime Type: type, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
-    const t = try tensor(Type, shape, null, requires_grad);
+pub fn empty(comptime Type: type, allocator: std.mem.Allocator, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
+    const t = try tensor(Type, allocator, shape, null, requires_grad);
     return t.newEmpty(shape);
 }
 
-pub fn full(comptime Type: type, comptime shape: []const usize, comptime data: Type, comptime requires_grad: bool) !_Tensor(Type) {
-    const t = try tensor(Type, shape, null, requires_grad);
+pub fn full(comptime Type: type, allocator: std.mem.Allocator, comptime shape: []const usize, comptime data: Type, comptime requires_grad: bool) !_Tensor(Type) {
+    const t = try tensor(Type, allocator, shape, null, requires_grad);
     return t.newFull(shape, data);
 }
 
