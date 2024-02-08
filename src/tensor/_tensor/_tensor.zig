@@ -411,23 +411,27 @@ test "_Tensor.copy_()" {
     try std.testing.expectEqual(t._T[0], tensor._T[0]);
 }
 
-// test "_Tensor.equal() - not equal" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{2}, &[_]i8{ -5, 8 }, false);
-//     var t = try i8Tensor.init(&[_]usize{ 1, 3 }, &[_]i8{ 1, 2, 3 }, false);
-//     var e = t.equal(tensor);
-//     std.debug.print("equal: {}\n", .{e});
-//     try std.testing.expect(e == false);
-// }
+test "_Tensor.equal() - not equal" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{2}, &[_]i8{ -5, 8 }, false);
+    defer tensor.deinit();
+    var t = try i8Tensor.init(std.testing.allocator, &[_]usize{ 1, 3 }, &[_]i8{ 1, 2, 3 }, false);
+    defer t.deinit();
+    const e = t.equal(tensor);
+    std.debug.print("equal: {}\n", .{e});
+    try std.testing.expect(e == false);
+}
 
-// test "_Tensor.equal() - equal" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{2}, &[_]i8{ -5, 8 }, false);
-//     var t = try i8Tensor.init(&[_]usize{2}, &[_]i8{ -5, 8 }, false);
-//     var e = t.equal(tensor);
-//     std.debug.print("equal: {}\n", .{e});
-//     try std.testing.expect(e == true);
-// }
+test "_Tensor.equal() - equal" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{2}, &[_]i8{ -5, 8 }, false);
+    defer tensor.deinit();
+    var t = try i8Tensor.init(std.testing.allocator, &[_]usize{2}, &[_]i8{ -5, 8 }, false);
+    defer t.deinit();
+    const e = t.equal(tensor);
+    std.debug.print("equal: {}\n", .{e});
+    try std.testing.expect(e == true);
+}
 
 // test "_Tensor.reshape()" {
 //     const i8Tensor = _Tensor(i8);
