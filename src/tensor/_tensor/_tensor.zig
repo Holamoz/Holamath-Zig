@@ -360,12 +360,13 @@ test "_Tensor.newZeros()" {
     new_tensor.print();
 }
 
-// test "_Tensor.element_size()" {
-//     const f32Tensor = _Tensor(f32);
-//     var tensor: f32Tensor = try f32Tensor.init(&[_]usize{ 3, 3, 3 }, null, false);
-//     try std.testing.expect(tensor.elementSize() == @sizeOf(f32));
-//     std.debug.print("Expected 4, got {}\n", .{tensor.elementSize()});
-// }
+test "_Tensor.elementSize()" {
+    const f32Tensor = _Tensor(f32);
+    var tensor: f32Tensor = try f32Tensor.init(std.testing.allocator, &[_]usize{ 3, 3, 3 }, null, false);
+    defer tensor.deinit();
+    try std.testing.expect(tensor.elementSize() == @sizeOf(f32));
+    std.debug.print("Expected 4, got {}\n", .{tensor.elementSize()});
+}
 
 // test "_Tensor.clamp_()" {
 //     const i8Tensor = _Tensor(i8);
