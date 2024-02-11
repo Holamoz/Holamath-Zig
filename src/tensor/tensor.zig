@@ -15,8 +15,7 @@ pub fn ones(comptime Type: type, allocator: std.mem.Allocator, comptime shape: [
 
 pub fn zeros(comptime Type: type, allocator: std.mem.Allocator, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
     const t = try tensor(Type, allocator, shape, null, requires_grad);
-    defer t.deinit();
-    return t.newZeros(shape);
+    return t.zero_();
 }
 
 pub fn empty(comptime Type: type, allocator: std.mem.Allocator, comptime shape: []const usize, comptime requires_grad: bool) !_Tensor(Type) {
