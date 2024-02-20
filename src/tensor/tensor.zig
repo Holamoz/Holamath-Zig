@@ -61,3 +61,7 @@ pub fn equal(comptime Type: type, Input: _Tensor(Type), Other: _Tensor(Type)) bo
 pub fn reshape(comptime Type: type, Input: _Tensor(Type), shape: []const usize) !_Tensor(Type) {
     return Input.reshape(shape);
 }
+
+pub fn round(comptime Type: type, Input: _Tensor(Type)) !_Tensor(Type) {
+    return Input.round();
+}

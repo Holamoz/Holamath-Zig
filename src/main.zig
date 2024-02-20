@@ -144,3 +144,14 @@ test "Tensor.reshape()" {
     try std.testing.expect(t._shape[0] == 3);
     try std.testing.expect(t._shape[1] == 1);
 }
+
+test "Tensor.round()" {
+    const tensor = try Tensor.tensor(f32, std.testing.allocator, &[_]usize{ 1, 3 }, &[_]f32{ 1.2, 2.3, 3.3 }, false);
+    defer tensor.deinit();
+    const t = try Tensor.round(f32, tensor);
+    defer t.deinit();
+    t.print();
+    try std.testing.expect(t._T[0] == 1);
+    try std.testing.expect(t._T[1] == 2);
+    try std.testing.expect(t._T[2] == 3);
+}
