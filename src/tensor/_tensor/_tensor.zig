@@ -253,6 +253,20 @@ pub fn _Tensor(comptime Type: type) type {
         pub fn view_as(self: Self, other: _Tensor(Type)) !_Tensor(Type) {
             return self.view(other._shape);
         }
+
+        pub fn round_(self: Self) !void {
+            if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) {
+                std.debug.print("is complex {}", .{self.isComplex()});
+                for (self._T) |*d| {
+                    d.*.real = std.math.round(d.real);
+                    d.*.img = std.math.round(d.img);
+                }
+            } else {
+                for (self._T) |*d| {
+                    d.* = @round(d.*);
+                }
+            }
+        }
     };
 }
 
@@ -512,4 +526,20 @@ test "_Tensor.zero_()" {
     try std.testing.expect(t1._T[2] == 0);
     try std.testing.expect(t2._T[1] == 0);
     try std.testing.expect(t2._T[3] == 0);
+}
+
+test "_Tensor.round()_" {
+    const f32Tensor = _Tensor(f32);
+    var t1 = try f32Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]f32{ 1.2, 2.4, 3.7, 4.1 }, false);
+    defer t1.deinit();
+    try t1.round_();
+    t1.print();
+}
+
+test "_Tensor.round_() - with complex" {
+    const c64Tensor = _Tensor(math.Complex(f64));
+    const c64v1 = math.Complex(f64).init(1.2, 2.4);
+    const c64v2 = math.Complex(f64).init(3.7, 4.1);
+    var t1 = try c64Tensor.init(std.testing.allocator, &[_]usize{ 1, 2 }, &[_]std.math.Complex(f64){ c64v1, c64v2 }, false);
+    defer t1.deinit();
 }
