@@ -78,23 +78,20 @@ pub fn _Tensor(comptime Type: type) type {
                 self._strides = newStridesMemory;
             }
 
-            var size: usize = 1;
-            for (newShape) |s| {
-                size *= s;
-            }
-
-            const oldDataPtrs = self._T.ptr[0..self._T.len];
-            if (self.allocator.resize(oldDataPtrs, size)) {
-                if (newData) |d| {
+            if (newData) |d| {
+                var size: usize = 1;
+                for (newShape) |s| {
+                    size *= s;
+                }
+                const oldDataPtrs = self._T.ptr[0..self._T.len];
+                if (self.allocator.resize(oldDataPtrs, size)) {
                     @memcpy(self._T, d);
+                } else {
+                    const newDataMemory = try self.allocator.alloc(Type, size);
+                    @memcpy(newDataMemory, d[0..size]);
+                    self.allocator.free(oldDataPtrs);
+                    self._T = newDataMemory;
                 }
-            } else {
-                const newDataMemory = try self.allocator.alloc(Type, size);
-                if (newData) |d| {
-                    @memcpy(newDataMemory, d);
-                }
-                self.allocator.free(oldDataPtrs);
-                self._T = newDataMemory;
             }
         }
 
@@ -232,7 +229,7 @@ pub fn _Tensor(comptime Type: type) type {
         }
 
         pub fn resize_(self: *Self, shape: []const usize) !_Tensor(Type) {
-            self.ensureContainers(shape, self._T);
+            try self.ensureContainers(shape, null);
 
             return _Tensor(Type).init(self.allocator, shape, self._T, self._requires_grad);
         }
@@ -459,17 +456,19 @@ test "_Tensor.reshape_as()" {
     try std.testing.expect(reshaped._shape[1] == 4);
 }
 
-// test "_Tensor.resize_()" {
-//     const i8Tensor = _Tensor(i8);
-//     var tensor: i8Tensor = try i8Tensor.init(&[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
-//     var resized = try tensor.resize_(&[_]usize{ 1, 2 });
-//     resized.print();
-//     std.debug.print("resize._T: {*}", .{tensor._T.ptr});
-//     try std.testing.expectEqual(resized._T[0], tensor._T[0]);
-//     try std.testing.expect(resized._shape[0] == 1);
-//     try std.testing.expect(resized._shape[1] == 2);
-//     try std.testing.expect(resized._T.len == 1 * 2);
-// }
+test "_Tensor.resize_()" {
+    const i8Tensor = _Tensor(i8);
+    var tensor: i8Tensor = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, 2, 3, 4 }, false);
+    defer tensor.deinit();
+    var resized = try tensor.resize_(&[_]usize{ 1, 2 });
+    defer resized.deinit();
+    resized.print();
+    std.debug.print("resize._T: {*}", .{tensor._T.ptr});
+    try std.testing.expectEqual(resized._T[0], tensor._T[0]);
+    try std.testing.expect(resized._shape[0] == 1);
+    try std.testing.expect(resized._shape[1] == 2);
+    try std.testing.expect(resized._T.len == 1 * 2);
+}
 
 test "_Tensor.view()" {
     const i8Tensor = _Tensor(i8);
