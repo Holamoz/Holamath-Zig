@@ -267,6 +267,12 @@ pub fn _Tensor(comptime Type: type) type {
                 }
             }
         }
+
+        pub fn round(self: Self) !_Tensor(Type) {
+            var t = try self.clone();
+            try t.round_();
+            return t;
+        }
     };
 }
 
@@ -542,4 +548,17 @@ test "_Tensor.round_() - with complex" {
     const c64v2 = math.Complex(f64).init(3.7, 4.1);
     var t1 = try c64Tensor.init(std.testing.allocator, &[_]usize{ 1, 2 }, &[_]std.math.Complex(f64){ c64v1, c64v2 }, false);
     defer t1.deinit();
+}
+
+test "_Tensor.round()" {
+    const f32Tensor = _Tensor(f32);
+    var t1 = try f32Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]f32{ 1.2, 2.4, 3.7, 4.1 }, false);
+    defer t1.deinit();
+    const rounded = try t1.round();
+    defer rounded.deinit();
+    rounded.print();
+    try std.testing.expect(rounded._T[0] == 1);
+    try std.testing.expect(rounded._T[1] == 2);
+    try std.testing.expect(rounded._T[2] == 4);
+    try std.testing.expect(rounded._T[3] == 4);
 }
