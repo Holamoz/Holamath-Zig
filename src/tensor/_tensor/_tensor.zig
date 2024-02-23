@@ -273,6 +273,19 @@ pub fn _Tensor(comptime Type: type) type {
             try t.round_();
             return t;
         }
+
+        pub fn abs_(self: Self) !void {
+            if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) {
+                for (self._T) |*d| {
+                    d.*.re = @abs(d.re);
+                    d.*.im = @abs(d.im);
+                }
+            } else {
+                for (self._T) |*d| {
+                    d.* = @abs(d.*);
+                }
+            }
+        }
     };
 }
 
@@ -561,4 +574,27 @@ test "_Tensor.round()" {
     try std.testing.expect(rounded._T[1] == 2);
     try std.testing.expect(rounded._T[2] == 4);
     try std.testing.expect(rounded._T[3] == 4);
+}
+
+test "_Tensor.abs_()" {
+    const f32Tensor = _Tensor(f32);
+    var t1 = try f32Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]f32{ 1.2, -2.4, 3.7, -4.1 }, false);
+    defer t1.deinit();
+    try t1.abs_();
+    t1.print();
+    try std.testing.expect(t1._T[0] == 1.2);
+    try std.testing.expect(t1._T[1] == 2.4);
+    try std.testing.expect(t1._T[2] == 3.7);
+    try std.testing.expect(t1._T[3] == 4.1);
+}
+
+test "_Tensor.abs_() - with complex" {
+    const c64Tensor = _Tensor(math.Complex(f64));
+    const c64v1 = math.Complex(f64).init(-1.2, 2.4);
+    const c64v2 = math.Complex(f64).init(3.7, 4.1);
+    var t1 = try c64Tensor.init(std.testing.allocator, &[_]usize{ 1, 2 }, &[_]std.math.Complex(f64){ c64v1, c64v2 }, false);
+    defer t1.deinit();
+    try t1.abs_();
+    try std.testing.expect(t1._T[0].re == 1.2);
+    try std.testing.expect(t1._T[0].im == 2.4);
 }
