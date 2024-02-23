@@ -135,8 +135,14 @@ pub fn _Tensor(comptime Type: type) type {
 
         // TODO: Should be visualized in the terminal
         pub fn print(self: Self) void {
-            for (self._T) |t| {
-                std.debug.print("{d} ", .{t});
+            if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) {
+                for (self._T) |t| {
+                    std.debug.print("({}, {}) ", .{ t.re, t.im });
+                }
+            } else {
+                for (self._T) |t| {
+                    std.debug.print("{d} ", .{t});
+                }
             }
             std.debug.print("\n", .{});
         }
@@ -595,6 +601,7 @@ test "_Tensor.abs_() - with complex" {
     var t1 = try c64Tensor.init(std.testing.allocator, &[_]usize{ 1, 2 }, &[_]std.math.Complex(f64){ c64v1, c64v2 }, false);
     defer t1.deinit();
     try t1.abs_();
+    t1.print();
     try std.testing.expect(t1._T[0].re == 1.2);
     try std.testing.expect(t1._T[0].im == 2.4);
 }
