@@ -262,10 +262,9 @@ pub fn _Tensor(comptime Type: type) type {
 
         pub fn round_(self: Self) !void {
             if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) {
-                std.debug.print("is complex {}", .{self.isComplex()});
                 for (self._T) |*d| {
-                    d.*.real = std.math.round(d.real);
-                    d.*.img = std.math.round(d.img);
+                    d.*.re = @round(d.re);
+                    d.*.im = @round(d.im);
                 }
             } else {
                 for (self._T) |*d| {
@@ -567,6 +566,8 @@ test "_Tensor.round_() - with complex" {
     const c64v2 = math.Complex(f64).init(3.7, 4.1);
     var t1 = try c64Tensor.init(std.testing.allocator, &[_]usize{ 1, 2 }, &[_]std.math.Complex(f64){ c64v1, c64v2 }, false);
     defer t1.deinit();
+    try t1.round_();
+    t1.print();
 }
 
 test "_Tensor.round()" {
