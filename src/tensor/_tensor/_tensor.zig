@@ -285,11 +285,24 @@ pub fn _Tensor(comptime Type: type) type {
                     d.*.re = @abs(d.re);
                     d.*.im = @abs(d.im);
                 }
-            } else {
+            } else if(Type == f16 or Type == f32 or Type == f64) {
                 for (self._T) |*d| {
                     d.* = @abs(d.*);
                 }
+            } else if(Type == i8 or Type == i16 or Type == i32 or Type == i64) {
+                for (self._T) |*d| {
+                    d.* = @intCast(@abs(d.*));
+                }
             }
+            else {
+                @compileError("abs_ not implemented for type " ++ @typeName(Type));
+            }
+        }
+
+        pub fn abs(self: Self) !_Tensor(Type) {
+            var t = try self.clone();
+            try t.abs_();
+            return t;
         }
     };
 }
@@ -595,6 +608,18 @@ test "_Tensor.abs_()" {
     try std.testing.expect(t1._T[3] == 4.1);
 }
 
+test "_Tensor.abs_() - with int" {
+    const i8Tensor = _Tensor(i8);
+    var t1 = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, -2, 3, -4 }, false);
+    defer t1.deinit();
+    try t1.abs_();
+    t1.print();
+    try std.testing.expect(t1._T[0] == 1);
+    try std.testing.expect(t1._T[1] == 2);
+    try std.testing.expect(t1._T[2] == 3);
+    try std.testing.expect(t1._T[3] == 4);
+}
+
 test "_Tensor.abs_() - with complex" {
     const c64Tensor = _Tensor(math.Complex(f64));
     const c64v1 = math.Complex(f64).init(-1.2, 2.4);
@@ -606,3 +631,16 @@ test "_Tensor.abs_() - with complex" {
     try std.testing.expect(t1._T[0].re == 1.2);
     try std.testing.expect(t1._T[0].im == 2.4);
 }
+
+test "_Tensor.abs()" {
+    const i8Tensor = _Tensor(i8);
+    var t1 = try i8Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]i8{ 1, -2, 3, -4 }, false);
+    defer t1.deinit();
+    const abs = try t1.abs();
+    defer abs.deinit();
+    abs.print();
+    try std.testing.expect(abs._T[0] == 1);
+    try std.testing.expect(abs._T[1] == 2);
+    try std.testing.expect(abs._T[2] == 3);
+    try std.testing.expect(abs._T[3] == 4);
+}   
