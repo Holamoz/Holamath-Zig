@@ -65,3 +65,7 @@ pub fn reshape(comptime Type: type, Input: _Tensor(Type), shape: []const usize) 
 pub fn round(comptime Type: type, Input: _Tensor(Type)) !_Tensor(Type) {
     return Input.round();
 }
+
+pub fn abs(comptime Type: type, Input: _Tensor(Type)) !_Tensor(Type){
+    return Input.abs();
+}

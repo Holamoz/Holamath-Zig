@@ -155,3 +155,14 @@ test "Tensor.round()" {
     try std.testing.expect(t._T[1] == 2);
     try std.testing.expect(t._T[2] == 3);
 }
+
+test "Tenor.abs()" {
+    const tensor = try Tensor.tensor(i8, std.testing.allocator, &[_]usize{1, 3}, &[_]i8{ -5, 2, 8 }, false);
+    defer tensor.deinit();
+    const t = try Tensor.abs(i8, tensor);
+    defer t.deinit();
+    t.print();
+    try std.testing.expect(t._T[0] == 5);
+    try std.testing.expect(t._T[1] == 2);
+    try std.testing.expect(t._T[2] == 8);
+}
