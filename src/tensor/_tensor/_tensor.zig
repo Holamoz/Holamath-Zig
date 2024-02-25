@@ -227,11 +227,11 @@ pub fn _Tensor(comptime Type: type) type {
         }
 
         pub fn reshape(self: Self, shape: []const usize) !_Tensor(Type) {
-            return _Tensor(Type).init(self.allocator, shape, self._T, self._requires_grad);
+            return self.view(shape);
         }
 
         pub fn reshape_as(self: Self, other: Self) !_Tensor(Type) {
-            return _Tensor(Type).init(self.allocator, other._shape, self._T, self._requires_grad);
+            return self.view_as(other);
         }
 
         pub fn resize_(self: *Self, shape: []const usize) !_Tensor(Type) {
