@@ -7,6 +7,12 @@ pub fn holamath() []const u8 {
     return "Hola, math!";
 }
 
+// Tests
+const _tensor_test = @import("tensor/_tensor/_tensor_test.zig");
+test {
+    _ = _tensor_test;
+}
+
 test "holamath" {
     std.debug.print("holamath\n", .{});
     try testing.expect(std.mem.eql(u8, holamath(), "Hola, math!"));
@@ -157,7 +163,7 @@ test "Tensor.round()" {
 }
 
 test "Tenor.abs()" {
-    const tensor = try Tensor.tensor(i8, std.testing.allocator, &[_]usize{1, 3}, &[_]i8{ -5, 2, 8 }, false);
+    const tensor = try Tensor.tensor(i8, std.testing.allocator, &[_]usize{ 1, 3 }, &[_]i8{ -5, 2, 8 }, false);
     defer tensor.deinit();
     const t = try Tensor.abs(i8, tensor);
     defer t.deinit();
