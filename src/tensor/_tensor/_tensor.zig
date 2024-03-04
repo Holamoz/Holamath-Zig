@@ -95,12 +95,12 @@ pub fn _Tensor(comptime Type: type) type {
             }
         }
 
-        fn set(self: Self, indices: []const usize, value: Type) !void {
+        pub fn set(self: Self, indices: []const usize, value: Type) !void {
             const index = try self.calculateIndex(indices);
             self._T[index] = value;
         }
 
-        fn get(self: Self, indices: []const usize) !Type {
+        pub fn get(self: Self, indices: []const usize) !Type {
             const index = try self.calculateIndex(indices);
             return self._T[index];
         }
@@ -285,16 +285,15 @@ pub fn _Tensor(comptime Type: type) type {
                     d.*.re = @abs(d.re);
                     d.*.im = @abs(d.im);
                 }
-            } else if(Type == f16 or Type == f32 or Type == f64) {
+            } else if (Type == f16 or Type == f32 or Type == f64) {
                 for (self._T) |*d| {
                     d.* = @abs(d.*);
                 }
-            } else if(Type == i8 or Type == i16 or Type == i32 or Type == i64) {
+            } else if (Type == i8 or Type == i16 or Type == i32 or Type == i64) {
                 for (self._T) |*d| {
                     d.* = @intCast(@abs(d.*));
                 }
-            }
-            else {
+            } else {
                 @compileError("abs_ not implemented for type " ++ @typeName(Type));
             }
         }
@@ -643,4 +642,4 @@ test "_Tensor.abs()" {
     try std.testing.expect(abs._T[1] == 2);
     try std.testing.expect(abs._T[2] == 3);
     try std.testing.expect(abs._T[3] == 4);
-}   
+}
