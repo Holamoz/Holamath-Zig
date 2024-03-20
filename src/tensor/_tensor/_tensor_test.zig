@@ -318,14 +318,16 @@ test "_Tensor.abs_() - with int" {
 
 test "_Tensor.abs_() - with complex" {
     const c64Tensor = _Tensor(math.Complex(f64));
-    const c64v1 = math.Complex(f64).init(-1.2, 2.4);
-    const c64v2 = math.Complex(f64).init(3.7, 4.1);
+    const c64v1 = math.Complex(f64).init(3, 4);
+    const c64v2 = math.Complex(f64).init(-5, 12);
     var t1 = try c64Tensor.init(std.testing.allocator, &[_]usize{ 1, 2 }, &[_]std.math.Complex(f64){ c64v1, c64v2 }, false);
     defer t1.deinit();
     try t1.abs_();
     t1.print();
-    try std.testing.expect(t1._T[0].re == 1.2);
-    try std.testing.expect(t1._T[0].im == 2.4);
+    try std.testing.expect(t1._T[0].re == 5);
+    try std.testing.expect(t1._T[0].im == 0);
+    try std.testing.expect(t1._T[1].re == 13);
+    try std.testing.expect(t1._T[1].im == 0);
 }
 
 test "_Tensor.abs()" {
@@ -343,15 +345,17 @@ test "_Tensor.abs()" {
 
 test "_Tensor.abs() - with complex" {
     const c64Tensor = _Tensor(math.Complex(f64));
-    const c64v1 = math.Complex(f64).init(-1.2, 2.4);
-    const c64v2 = math.Complex(f64).init(3.7, 4.1);
+    const c64v1 = math.Complex(f64).init(3, 4);
+    const c64v2 = math.Complex(f64).init(-5, 12);
     var t1 = try c64Tensor.init(std.testing.allocator, &[_]usize{ 1, 2 }, &[_]std.math.Complex(f64){ c64v1, c64v2 }, false);
     defer t1.deinit();
     const abs = try t1.abs();
     defer abs.deinit();
     abs.print();
-    try std.testing.expect(abs._T[0].re == 1.2);
-    try std.testing.expect(abs._T[0].im == 2.4);
+    try std.testing.expect(abs._T[0].re == 5);
+    try std.testing.expect(abs._T[0].im == 0);
+    try std.testing.expect(abs._T[1].re == 13);
+    try std.testing.expect(abs._T[1].im == 0);
 }
 
 test "_Tensor.add_()" {

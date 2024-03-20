@@ -282,8 +282,8 @@ pub fn _Tensor(comptime Type: type) type {
         pub fn abs_(self: Self) !void {
             if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) {
                 for (self._T) |*d| {
-                    d.*.re = @abs(d.re);
-                    d.*.im = @abs(d.im);
+                    d.*.re = @sqrt(d.*.re * d.*.re + d.*.im * d.*.im);
+                    d.*.im = 0;
                 }
             } else if (Type == f16 or Type == f32 or Type == f64) {
                 for (self._T) |*d| {
