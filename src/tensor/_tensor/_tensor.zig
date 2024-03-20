@@ -303,5 +303,28 @@ pub fn _Tensor(comptime Type: type) type {
             try t.abs_();
             return t;
         }
+
+        pub fn add_(self: *Self, other: Self) !void {
+            // ensure that both tensors have the same shape
+            if (self._shape.len != other._shape.len) {
+                return TensorError.TensorIncompatibleShape;
+            } else {
+                for (self._shape, 0..self._shape.len) |s, i| {
+                    if (s != other._shape[i]) {
+                        return TensorError.TensorIncompatibleShape;
+                    }
+                }
+            }
+
+            for (self._T, 0..self._T.len) |*d, i| {
+                d.* = d.* + other._T[i];
+            }
+        }
+
+        pub fn add(self: Self, other: Self) !_Tensor(Type) {
+            var t = try self.clone();
+            try t.add_(other);
+            return t;
+        }
     };
 }

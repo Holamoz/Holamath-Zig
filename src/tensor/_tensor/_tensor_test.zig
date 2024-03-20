@@ -340,3 +340,32 @@ test "_Tensor.abs()" {
     try std.testing.expect(abs._T[2] == 3);
     try std.testing.expect(abs._T[3] == 4);
 }
+
+test "_Tensor.add_()" {
+    const f32Tensor = _Tensor(f32);
+    var t1 = try f32Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]f32{ 1.2, -2.4, 3.7, -4.1 }, false);
+    defer t1.deinit();
+    var t2 = try f32Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]f32{ 1.2, -2.4, 3.7, -4.1 }, false);
+    defer t2.deinit();
+    try t1.add_(t2);
+    t1.print();
+    try std.testing.expect(t1._T[0] == 2.4);
+    try std.testing.expect(t1._T[1] == -4.8);
+    try std.testing.expect(t1._T[2] == 7.4);
+    try std.testing.expect(t1._T[3] == -8.2);
+}
+
+test "_Tensor.add()" {
+    const f32Tensor = _Tensor(f32);
+    var t1 = try f32Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]f32{ 1.2, -2.4, 3.7, -4.1 }, false);
+    defer t1.deinit();
+    var t2 = try f32Tensor.init(std.testing.allocator, &[_]usize{ 2, 2 }, &[_]f32{ 1.2, -2.4, 3.7, -4.1 }, false);
+    defer t2.deinit();
+    const sum = try t1.add(t2);
+    defer sum.deinit();
+    sum.print();
+    try std.testing.expect(sum._T[0] == 2.4);
+    try std.testing.expect(sum._T[1] == -4.8);
+    try std.testing.expect(sum._T[2] == 7.4);
+    try std.testing.expect(sum._T[3] == -8.2);
+}
