@@ -386,3 +386,18 @@ test "_Tensor.add()" {
     try std.testing.expect(sum._T[2] == 7.4);
     try std.testing.expect(sum._T[3] == -8.2);
 }
+
+test "_Tesor.add() - with complex" {
+    const c64Tensor = _Tensor(math.Complex(f64));
+    const c64v1 = math.Complex(f64).init(3, 4);
+    const c64v2 = math.Complex(f64).init(-5, 12);
+    var t1 = try c64Tensor.init(std.testing.allocator, &[_]usize{ 1, 2 }, &[_]std.math.Complex(f64){ c64v1, c64v2 }, false);
+    defer t1.deinit();
+    const sum = try t1.add(t1);
+    defer sum.deinit();
+    sum.print();
+    try std.testing.expect(sum._T[0].re == 6);
+    try std.testing.expect(sum._T[0].im == 8);
+    try std.testing.expect(sum._T[1].re == -10);
+    try std.testing.expect(sum._T[1].im == 24);
+}

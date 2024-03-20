@@ -316,8 +316,21 @@ pub fn _Tensor(comptime Type: type) type {
                 }
             }
 
-            for (self._T, 0..self._T.len) |*d, i| {
-                d.* = d.* + other._T[i];
+            if (Type == math.Complex(f16) or Type == math.Complex(f32) or Type == math.Complex(f64)) {
+                for (self._T, 0..self._T.len) |*d, i| {
+                    d.*.re = d.*.re + other._T[i].re;
+                    d.*.im = d.*.im + other._T[i].im;
+                }
+            } else if (Type == f16 or Type == f32 or Type == f64) {
+                for (self._T, 0..self._T.len) |*d, i| {
+                    d.* = d.* + other._T[i];
+                }
+            } else if (Type == i8 or Type == i16 or Type == i32 or Type == i64) {
+                for (self._T, 0..self._T.len) |*d, i| {
+                    d.* = d.* + other._T[i];
+                }
+            } else {
+                @compileError("add_ not implemented for type " ++ @typeName(Type));
             }
         }
 
